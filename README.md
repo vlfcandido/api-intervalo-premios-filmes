@@ -2,6 +2,8 @@
 
 API REST que lê a lista de indicados e vencedores do Golden Raspberry Awards (categoria Pior Filme) a partir de um CSV e responde quais produtores tiveram o menor e o maior intervalo entre dois prêmios consecutivos.
 
+![Chamada à rota de intervalos com a resposta da API e a linha do tempo dos produtores](docs/prints/api-intervalo-premios-filmes.png)
+
 Exercício técnico de backend em Node.js. O objetivo era mostrar organização em camadas, carga de dados na subida e um teste de integração que confere o resultado contra o próprio arquivo de entrada.
 
 ## Como funciona
