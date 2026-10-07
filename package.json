@@ -1,7 +1,7 @@
 {
-  "name": "golden-raspberry-api",
+  "name": "api-intervalo-premios-filmes",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
@@ -9,7 +9,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "description": "",
   "dependencies": {
     "cors": "^2.8.5",

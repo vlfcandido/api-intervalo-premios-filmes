@@ -1,85 +1,61 @@
-# Golden Raspberry API
+# api-intervalo-premios-filmes
 
-## Sumário
+API REST que lê a lista de indicados e vencedores do Golden Raspberry Awards (categoria Pior Filme) a partir de um CSV e responde quais produtores tiveram o menor e o maior intervalo entre dois prêmios consecutivos.
 
-1. [Visão Geral](#visão-geral)  
-2. [Arquitetura e Organização](#arquitetura-e-organização)  
-3. [Tecnologias Utilizadas](#tecnologias-utilizadas)  
-4. [Pré-requisitos e Instalação](#pré-requisitos-e-instalação)  
-5. [Executando a Aplicação](#executando-a-aplicação)  
-   - [Como Alterar o Arquivo CSV](#como-alterar-o-arquivo-csv)  
-6. [Endpoints da API](#endpoints-da-api)  
-7. [Estrutura de Retorno](#estrutura-de-retorno)  
-8. [Funcionamento Interno](#funcionamento-interno)  
-9. [Testes de Integração](#testes-de-integração)  
-10. [Como Rodar os Testes](#como-rodar-os-testes)  
-11. [Estrutura de Pastas](#estrutura-de-pastas)  
-12. [Requisitos Atendidos](#requisitos-atendidos)  
+Exercício técnico de backend em Node.js. O objetivo era mostrar organização em camadas, carga de dados na subida e um teste de integração que confere o resultado contra o próprio arquivo de entrada.
 
----
+## Como funciona
 
-## Visão Geral
+1. Na inicialização, `src/utils/populateDatabase.js` cria a tabela `movies` num SQLite em memória e carrega `data/movies.csv` (separador `;`).
+2. `GET /api/movies/awards/intervals` busca os filmes vencedores, separa os produtores (por vírgula ou "and"), agrupa os anos de vitória por produtor e calcula os intervalos entre vitórias consecutivas.
+3. A resposta traz todos os produtores empatados no menor e no maior intervalo.
 
-A API processa a lista de indicados e vencedores do **Golden Raspberry Awards** para encontrar:  
-- O **produtor com o menor intervalo** entre dois prêmios consecutivos.  
-- O **produtor com o maior intervalo** entre dois prêmios consecutivos.  
+```
+src/
+  controllers/   entrada HTTP
+  services/      leitura do CSV e cálculo dos intervalos
+  repositories/  consultas ao SQLite
+  db/            conexão e criação da tabela
+  routes/        rotas do Express
+tests/
+  integration/   teste ponta a ponta com Supertest
+  data/          CSV reduzido usado no teste
+```
 
-A aplicação lê um **arquivo CSV** contendo os filmes e **armazena os dados em um banco de dados em memória**, garantindo execução rápida e sem dependências externas.
+## Stack
 
----
+Node.js 18+, Express 4, sqlite3 (em memória), csv-parser, Jest e Supertest.
 
-## Testes de Integração
+## Como rodar
 
-Os testes garantem que a API funciona corretamente e cobrem os seguintes cenários:
-
-1. **Produtores com múltiplos prêmios** - Verifica se o menor e maior intervalo estão corretos.
-2. **Sem vencedores** - O endpoint deve retornar `{ "min": [], "max": [] }`.
-3. **Banco de dados vazio** - A aplicação não deve quebrar caso não haja dados carregados.
-4. **Filmes com anos repetidos** - Testa se anos duplicados não afetam os cálculos.
-5. **Erros no banco** - Simula falhas no banco e verifica se a API responde corretamente.
-6. **Validação de consistência com os dados do CSV** - Verifica se os dados retornados pela API correspondem exatamente aos dados carregados a partir do arquivo CSV utilizado pelo sistema. O teste:
-   - Lê os dados do arquivo CSV de referência.
-   - Insere os filmes no banco de dados em memória antes de cada teste.
-   - Chama o endpoint `/api/movies/awards/intervals` e compara o retorno com os dados processados do CSV.
-   - Falha caso haja qualquer divergência entre os dados esperados e os obtidos pela API.
-
----
-
-## Como Rodar os Testes
-
-Os testes utilizam **Jest + Supertest** para simular chamadas HTTP e verificar o funcionamento completo da API.
-
-### **Executando os Testes**
 ```bash
-npm test -- --verbose
+npm install
+npm start            # sobe em http://localhost:3000
 ```
 
-O comando executa todos os testes na pasta `tests/integration` e exibe os logs de cada teste executado.
+Para usar outro arquivo, substitua `data/movies.csv` mantendo o cabeçalho `year;title;studios;producers;winner`.
 
-### **Resultados Esperados**
-- Status `200` para consultas bem-sucedidas.
-- Retorno de listas vazias quando apropriado.
-- Manipulação correta de anos repetidos e múltiplos produtores.
-- Retorno de erro `500` caso ocorra uma falha no banco.
-- Correspondência exata entre os dados retornados pela API e os dados processados do arquivo CSV de referência.
+Exemplo de resposta com o CSV incluído:
 
----
-
-## Estrutura de Pastas
-
+```json
+{
+  "min": [{ "producer": "Joel Silver", "interval": 1, "previousWin": 1990, "followingWin": 1991 }],
+  "max": [{ "producer": "Matthew Vaughn", "interval": 13, "previousWin": 2002, "followingWin": 2015 }]
+}
 ```
-moviesTest
-│-- package.json
-│-- server.js
-│-- README.md
-│-- tests
-│   └── integration
-│       └── movieApi.test.js
-│-- src
-    ├── controllers
-    ├── db
-    ├── repositories
-    ├── routes
-    ├── services
-    ├── utils
+
+## Testes
+
+```bash
+npm test
 ```
+
+Um teste de integração (`tests/integration/movieApi.test.js`): carrega o CSV de teste no banco, chama o endpoint e compara a resposta com o resultado calculado a partir do arquivo. Última execução: 1 de 1 passando.
+
+## Status
+
+Concluído como exercício. Não há persistência fora da memória nem paginação; o CSV é carregado inteiro a cada subida.
+
+## Licença
+
+MIT.
