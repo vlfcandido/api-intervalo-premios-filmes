@@ -1,3 +1,8 @@
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/marca/cabecalho-escuro.svg">
+  <img alt="api-intervalo-premios-filmes" src="docs/marca/cabecalho-claro.svg" width="100%">
+</picture>
+
 # api-intervalo-premios-filmes
 
 API REST que lê a lista de indicados e vencedores do Golden Raspberry Awards (categoria Pior Filme) a partir de um CSV e responde quais produtores tiveram o menor e o maior intervalo entre dois prêmios consecutivos.
